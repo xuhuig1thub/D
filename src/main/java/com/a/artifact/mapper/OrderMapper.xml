@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.a.artifact.mapper.OrderDao">
+    <!-- 根据用户uid查询订单信息 -->
+    <select id="selectOrdersById" resultType="com.a.artifact.pojo.Order"
+        parameterType="Integer">
+        select * from orders where user_id=#{id}
+    </select>
+    <resultMap id="ordersAndProducts" type="com.a.artifact.pojo.Order">
+    <id property="id" column="id"></id>
+<!--        <result property="ordersn" column="ordersn"></result>-->
+<!--        <result> can both be omitted if property and column are equal except for <id>
+because  <id> is must provided-->
+        <result property="userId" column="user_id"/>
+        <association property="perso" column="user_id" javaType="p" select="getUser"/>
+    <collection property="products" ofType="com.a.artifact.pojo.Product" column="id"
+    select="getProducts">
+    </collection>
+
+    </resultMap>
+    <select id="getProducts" parameterType="int" resultType="com.a.artifact.pojo.Product">
+        select * from orders_detail o ,product p where o.product_id=p.id and #{id}=orders_id
+    </select>
+<!--   * can instead of select o.id id ,p.name name ,p.price price from orders_detail o ,product p
+where o.product_id=p.id and #{id}=orders_id -->
+
+    <select id="getUser" parameterType="int" resultType="p">
+        select * from person where  #{abcdefg}=id
+    </select>
+    <select id="selectallOrdersAndProducts" resultMap="ordersAndProducts"
+        parameterType="Integer">
+        select * from orders where user_id=#{id}
+        <if test="id==2">
+        and 1=1
+        </if>
+</select>
+</mapper>
+<!--and ordersn like concat('%','rrup','%') or ordersn like concat('%','oal','%')
+            or ordersn like concat('%','ea','%')
+
+        <choose>
+            <when test="id=0">
+
+            </when>
+            <when test="ordersn!=null and ordersn!=''">
+
+            </when>
+            <otherwise>
+
+            </otherwise>
+        </choose>
+
+    -->

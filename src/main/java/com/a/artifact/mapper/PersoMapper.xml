@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.a.artifact.mapper.PersoDao">
+    <!-- 一对一根据id查询个人信息：级联查询的第一种方法嵌套查詢（嵌套查询，执行两个SQL语句）-->
+    <resultMap type="p" id="cardAndPerson1">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <!-- 一对一级联查询-->
+        <association property="card" column="idcard_id" javaType="i"
+            select="com.a.artifact.mapper.IdCardDao.selectCodeById"/>
+    </resultMap>
+    <select id="selectPersonById1" parameterType="Integer" resultMap=
+        "cardAndPerson1">
+        select * from person where id=#{id}
+    </select>
+    <!--对一根据id查询个人信息：级联查询的第二种方法聯合查詢（嵌套结果，执行一个SQL语句）-->
+    <resultMap type="com.a.artifact.pojo.Perso" id="cardAndPerson2">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <!-- 一对一级联查询-->
+        <association property="card" javaType="com.a.artifact.pojo.Idcard">
+            <id property="id" column="idcard_id"/>
+            <result property="code" column="code"/>
+        </association>
+    </resultMap>
+
+    <select id="selectPersonById2" parameterType="Integer" resultMap= "cardAndPerson2">
+        select p.*,ic.code
+        from person p, idcard ic
+        where p.idcard_id=ic.id and p.id=#{id}
+    </select>
+
+    <!-- 一对一根据id查询个人信息：连接查询（使用POJO存储结果）-->
+    <select id="selectPersonById3" parameterType="Integer" resultType= "com.a.artifact.pojo.SelectPersonPOJO">
+        select p.*,ic.code
+        from person p, idcard ic
+        where p.idcard_id = ic.id and p.id=#{id}
+    </select>
+
+<select id="getOrders" parameterType="int" resultType="com.a.artifact.pojo.Order">
+    SELECT * from orders where user_id=#{id}
+</select>
+    <!--
+    一对多 根据uid查询用户及其关联的订单信息：级联查询的第一种方法（嵌套查询） -->
+    <resultMap type="p" id="userAndOrders1">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <association property="card" column="idcard_id" javaType="i"
+            select="com.a.artifact.mapper.IdCardDao.selectCodeById"/>
+        <!-- 一对多级联查询，ofType表示集合中的元素类型，将uid传递给selectOrdersByld -->
+        <collection property="ordersList" ofType="com.a.artifact.pojo.Order"
+            column="id" select="getOrders" />
+
+    </resultMap>
+    <select id="selectUserOrdersById1" parameterType="Integer"
+        resultMap="userAndOrders1">
+        select * from person where id = #{id}
+    </select>
+
+
+
+    <!--对多根据uid查询用户及其关联的订单信息：级联查询的第二种方法（嵌套结果） -->
+    <resultMap type="p" id="userAndOrders2">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <association property="card" javaType="com.a.artifact.pojo.Idcard">
+            <id property="id" column="idcard_id"/>
+            <result property="code" column="code"/>
+        </association>
+
+        <!-- 对多级联查询，ofType表示集合中的元素类型 -->
+        <collection property="ordersList" ofType="com.a.artifact.pojo.Order">
+            <id property="id" column="id" />
+            <result property="ordersn" column="ordersn" />
+        </collection>
+    </resultMap>
+    <select id="selectUserOrdersById2" parameterType="Integer"
+        resultMap="userAndOrders2">
+        select p.*,o.id,i.code, o.ordersn ,i.id from person p, orders o ,idcard i where p.id
+        = o.user_id and p.idcard_id=i.id
+       and  p.id=#{id}
+    </select>
+    <!-- 一对多 根据uid查询用户及其关联的订单信息：连接查询（使用POJO存储结果） -->
+    <select id="selectUserOrdersById3" parameterType="Integer"
+        resultType="com.a.artifact.pojo.SelectPersonOrderById">
+        select p.id uid,p.name uname, o.id oId, o.ordersn from person p, orders o where
+        p.id = o.user_id
+        and p.id=#{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.a.artifact.mapper.StudentMapper">
+
+    <sql id="sel">SELECT *  FROM student</sql>
+    <select id="selectUsersa" parameterType="int"   resultType="student">
+        <include refid="sel"></include>
+        <where>
+            <!-- if标签:执行一个判断语句，成立才会执行标签体内的sql语句
+                test:写上条件判断语句
+                注意:这里每一个if前面都尽量加上and，如果你是第一个条件，框架会自动帮你把and截取，如果是第二个if就不能省略and
+             -->
+            <if test="2==2 and 3 != 5">
+                and id = (#{id}+4)
+            </if>
+<!--            <if test="username != null and username != ''">-->
+<!--                and username like '%${username}%'-->
+<!--            </if>-->
+        </where>
+</select>
+
+    <select id="getAll" resultSets="List" resultType="com.a.artifact.pojo.Student" >
+        SELECT
+        *
+        FROM student
+    </select>
+    <select id="countByList" resultType="int" parameterType="list">
+        SELECT count(*) from student
+           <where>
+             studentID in
+             <foreach item="item" collection="list" separator="," open="(" close=")" index="">
+              #{item, jdbcType=NUMERIC}
+             </foreach>
+          </where>
+         </select>
+    <insert id="insert" parameterType="com.a.artifact.pojo.Student" >
+       INSERT INTO
+               student
+               (name,id,studentID)
+           VALUES
+               (#{name}, #{id}, #{studentID})
+    </insert>
+<!--    void insertStus(List<Student> s);-->
+    <insert id="insertStus" parameterType="list" >
+        <if test="list != null">
+            INSERT INTO student(name,id,studentID)
+            VALUES
+            <foreach collection="list" item="item"  index="index" separator=",">
+                (#{item.name},
+                #{item.id},
+                #{item.studentID})
+            </foreach>
+
+        </if>
+
+    </insert>
+    <update id="update" parameterType="com.a.artifact.pojo.Student">
+        UPDATE
+        student
+        SET
+        <if test="studentID != 0">studentID = #{studentID},</if>
+        <if test="name != null">name = #{name}</if>
+        WHERE
+        id = #{id}
+    </update>
+    <delete id="delete" parameterType="int"  >
+       DELETE FROM
+                STUDENT
+       WHERE
+                id =#{id}
+    </delete>
+
+    <!--       -->
+    <!--        <if test="name != null">name = #{name},</if>-->
+<!--     <include refid="sel"></include>   -->
+    <!--<select id="listStudent" resultType="List<Student>">-->
+    <!--        select * from  student-->
+    <!--    </select>-->
+
+    <!--<insert id="addStudent" parameterType="Student">-->
+    <!--        insert into student (id, studentID, name) values (#{id},#{studentID},#{name})-->
+    <!--    </insert>-->
+
+    <!--<delete id="deleteStudent" parameterType="Student">-->
+    <!--        delete from student where id = #{id}-->
+    <!--    </delete>-->
+
+    <!--<select id="getStudent" parameterType="_int" resultType="Student">-->
+    <!--        select * from student where id= #{id}-->
+    <!--    </select>-->
+
+    <!--<update id="updateStudent" parameterType="Student">-->
+    <!--        update student set name=#{name} where id=#{id}-->
+    <!--    </update>-->
+</mapper>

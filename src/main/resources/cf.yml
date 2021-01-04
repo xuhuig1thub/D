@@ -1,0 +1,7 @@
+environment:
+  production:
+    url: http://production.example.com
+    name: production mode
+  dev:
+    url: http://dev.example.com
+    name: developer mode
